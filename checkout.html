@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout simulado</title>
+  <style>
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: linear-gradient(180deg,#fff 0%, #fff5f8 100%);
+      color:#222;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      padding:20px;
+    }
+    .box{
+      width:100%;
+      max-width:520px;
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.08);
+      padding:22px;
+    }
+    h2{ color:#ff4976; margin:0 0 8px; }
+    .product {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .product .thumb{
+      width:84px; height:64px; border-radius:8px;
+      background:linear-gradient(135deg,#ffdce6,#ffeef6); display:flex; align-items:center; justify-content:center;
+      color:rgba(0,0,0,0.35);
+      overflow:hidden;
+    }
+    .info h3{ margin:0; font-size:16px }
+    .info p{ margin:6px 0 0; color:#666; font-size:14px }
+
+    form{ margin-top:8px; display:grid; gap:10px }
+    input, select{
+      padding:10px; border-radius:8px; border:1px solid #eee; font-size:15px;
+    }
+
+    .row{ display:flex; gap:10px }
+    .row .col{ flex:1 }
+
+    .pay{
+      background:#ff4976; color:white; padding:12px; border-radius:10px; border:none; font-weight:800;
+      cursor:pointer; margin-top:6px;
+    }
+
+    .note{ color:#666; font-size:13px; margin-top:8px }
+
+    .success{
+      display:none;
+      text-align:center;
+      padding:16px;
+      border-radius:8px;
+      background: linear-gradient(90deg,#eaffe8,#f0fff6);
+      color:#0b7d3a;
+      font-weight:700;
+    }
+
+    a.back{ color:#777; font-size:14px; text-decoration:none; display:inline-block; margin-top:10px }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Pago seguro (simulado)</h2>
+
+    <div id="productArea" class="product">
+      <!-- Rellenado por JS -->
+      <div class="thumb">IMG</div>
+      <div class="info">
+        <h3 id="pTitle">Producto</h3>
+        <p id="pPrice">$0.00</p>
+      </div>
+    </div>
+
+    <form id="paymentForm" onsubmit="event.preventDefault(); procesarPago();">
+      <label>Nombre en la tarjeta
+        <input id="cardName" type="text" placeholder="Nombre completo" required>
+      </label>
+
+      <label>Número de tarjeta
+        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" required>
+      </label>
+
+      <div class="row">
+        <div class="col">
+          <label>Expiración
+            <input id="cardExp" type="text" placeholder="MM/AA" maxlength="5" required>
+          </label>
+        </div>
+        <div class="col">
+          <label>CVC
+            <input id="cardCvc" type="text" maxlength="4" placeholder="123" required>
+          </label>
+        </div>
+      </div>
+
+      <button class="pay" type="submit">Pagar ahora</button>
+
+      <p class="note">Esto es una simulación. No ingreses datos reales de tarjetas.</p>
+    </form>
+
+    <div id="successBox" class="success" role="status">
+      ¡Pago simulado exitoso! ❤️<br>
+      Gracias por tu compra.
+    </div>
+
+    <a class="back" href="index.html">← Volver a la tienda</a>
+  </div>
+
+  <script>
+    // Lista de productos (debe coincidir con index.html)
+    const productos = [
+      { id: 1, title: "Pulsera de cuero", desc: "Pulsera hecha a mano", price: 250, img: "images/pulsera.jpg" },
+      { id: 2, title: "Collar minimal", desc: "Collar sencillo y elegante", price: 380, img: "images/collar.jpg" },
+      { id: 3, title: "Tarjeta regalo", desc: "Regala amor en un sobre", price: 150, img: "images/tarjeta.jpg" }
+    ];
+
+    // Leer producto de la query string
+    function obtenerQuery(name){
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    const pid = parseInt(obtenerQuery('product'), 10) || null;
+    const producto = productos.find(p => p.id === pid) || productos[0];
+
+    // Mostrar info del producto
+    document.getElementById('pTitle').textContent = producto.title;
+    document.getElementById('pPrice').textContent = `$ ${producto.price.toFixed(2)}`;
+    const thumb = document.querySelector('.thumb');
+    // intenta cargar imagen si existe
+    const img = new Image();
+    img.onload = ()=> {
+      thumb.innerHTML = '';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      thumb.appendChild(img);
+    }
+    img.onerror = ()=> {
+      // deja el texto IMG si no hay archivo
+    }
+    img.src = producto.img;
+
+    function procesarPago(){
+      // Validaciones simples (puedes ampliar)
+      const name = document.getElementById('cardName').value.trim();
+      if(!name){ alert('Ingresa el nombre en la tarjeta'); return; }
+      // Mostrar simulación de procesamiento
+      document.getElementById('paymentForm').style.display = 'none';
+      const success = document.getElementById('successBox');
+      success.style.display = 'block';
+
+      // Aquí podrías redirigir o mostrar un recibo simulado
+      setTimeout(()=> {
+        success.innerHTML += `<div style="margin-top:10px; font-size:13px; color:#444">Resumen: ${producto.title} — $${producto.price.toFixed(2)}</div>`;
+      },600);
+    }
+  </script>
+</body>
+</html>
